@@ -35,7 +35,16 @@ INSTALLED_APPS = [
     'custom_user.apps.CustomUserConfig',
     
     'base.apps.BaseConfig',
+    'home.apps.HomeConfig',
+
+    "django_cron",
 ]
+
+
+CRON_CLASSES = [
+    'home.cron.ResetFieldsCronJob',
+]
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
