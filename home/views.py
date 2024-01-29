@@ -1,6 +1,8 @@
 from random import randint
 from  decimal import Decimal
 
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -96,8 +98,11 @@ class DashBoardView(APIView):
             level.save()
             smile.save()
         else:
-            goal = goal_setter(goal)
-            goal.save()
+            try:
+                goal = goal_setter(goal)
+                goal.save()
+            except:
+                pass
 
         goal = Goal.objects.get(user=self.request.user)
         goal_serializer = GoalSerializer(goal)
@@ -201,6 +206,9 @@ class ActivityDetialView(APIView):
 
 
 class ImageView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
     def post(self, request):
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
@@ -208,3 +216,69 @@ class ImageView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CreateComunityView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
+    def post(self,request):
+        serializer = CommunitySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(admin = self.request.user, current_users=1)
+            community = Community.objects.get(admin=self.request.user)
+
+            # add current user to community he just created cuz he's a member too
+            join_self = UserJoinedCommunity.objects.create(
+                user = self.request.user,
+                community = community,
+                joined = True,
+            )
+            join_self.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class JoinCommunityView(APIView):
+    def post(self, reqeust, pk):
+        user = self.request.user
+        community = Community.objects.get(id=pk)
+        
+        if UserJoinedCommunity.objects.filter(user=user, community=community).exists():
+            return Response({'error': 'Already a member!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            community.current_users += 1
+            community.save()
+        except:
+            return Response({"error":"community full"}, status=status.HTTP_403_FORBIDDEN)
+        # If not, create a new UserJoinedCommunity entry
+        join_com = UserJoinedCommunity.objects.create(
+            user=user,
+            community=community,
+            joined=True,
+        )
+        join_com.save()
+
+        return Response({'success': 'Joined the community!'}, status=status.HTTP_201_CREATED)
+
+
+class CreatePostView(APIView):
+    def post(self, request, pk):
+        try:
+            community = Community.objects.get(id=pk)
+        except:
+            return Response({"error":"community not Found"}, status=status.HTTP_404_NOT_FOUND)
+
+        joined = UserJoinedCommunity.objects.get(user=self.request.user , community=community)
+        if joined is not None:
+            serializer = CommPostSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user = self.request.user, community=community)
+                
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error":"You are not joined in this community"}, status=status.HTTP_403_FORBIDDEN)
+        
+        

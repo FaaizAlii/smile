@@ -42,3 +42,15 @@ class ImageSerializer(serializers.ModelSerializer):
             )
 
         return value
+
+
+class CommunitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Community
+        fields = ['name']
+
+
+class CommPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommPost
+        fields = ['title','description']
