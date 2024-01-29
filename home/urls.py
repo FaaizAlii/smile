@@ -13,4 +13,5 @@ urlpatterns = [
     path('create-community/', views.CreateComunityView.as_view(), name='create-community'),
     path('join-community/<int:pk>/', views.JoinCommunityView.as_view(), name='join-community'),
     path('create-community-post/<int:pk>/', views.CreatePostView.as_view(), name='create-community-post'),
+    path('create-friend/<int:pk>/', views.CreateFriendView.as_view(), name='create-friend'),
 ]

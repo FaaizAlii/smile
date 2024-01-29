@@ -91,3 +91,7 @@ class Friend(TimestampModel):
                             on_delete=models.CASCADE)
     friend = models.OneToOneField(
         User, related_name='friend', on_delete=models.CASCADE)
+    
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.friend.email}"

@@ -282,3 +282,16 @@ class CreatePostView(APIView):
             return Response({"error":"You are not joined in this community"}, status=status.HTTP_403_FORBIDDEN)
         
         
+class CreateFriendView(APIView):
+    def post(self, request, pk):
+        current_user = self.request.user
+        
+        friend = get_object_or_404(User, id=pk)
+        try:
+            new_friend = Friend.objects.create(user=current_user, friend=friend)
+            serializer = FriendSerializer(data=new_friend)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status==status.HTTP_201_CREATED)
+        except:
+            return Response({"error":"Already friends"}, status=status.HTTP_400_BAD_REQUEST)

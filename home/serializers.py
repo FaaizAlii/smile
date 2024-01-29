@@ -54,3 +54,10 @@ class CommPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommPost
         fields = ['title','description']
+
+class FriendSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    friend = UserSerializer()
+    class Meta:
+        model = Friend
+        fields = "__all__"
