@@ -49,9 +49,6 @@ class DashBoardView(APIView):
         # Calculate the number of days passed
         days_passed = (current_date - last_updated_date).days
 
-        print(last_updated_date)
-        print(current_date)
-        print(days_passed)
         # Check if the user accessed the app today
         if (current_date - last_updated_date).days == 1:
             
