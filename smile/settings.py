@@ -36,14 +36,8 @@ INSTALLED_APPS = [
     
     'base.apps.BaseConfig',
     'home.apps.HomeConfig',
-
-    "django_cron",
 ]
 
-
-CRON_CLASSES = [
-    'home.cron.ResetFieldsCronJob',
-]
 
 
 REST_FRAMEWORK = {
